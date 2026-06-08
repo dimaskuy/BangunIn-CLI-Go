@@ -8,17 +8,16 @@ type Supplier struct {
 	jenisMaterial    string
 	ratingPerforma   int
 	detailKontak     string
-	riwayatPelayanan string
+	kondisiPelayanan string
 }
 
-// dimas - mempercantik dengan mengubah warna terminal
+// dimas - styling dengan mengubah warna terminal
 const (
 	Reset  = "\033[0m"
 	Red    = "\033[31m"
 	Green  = "\033[32m"
 	Yellow = "\033[33m"
 	Blue   = "\033[34m"
-	White  = "\033[37m"
 )
 
 func errMsg(str string) string {
@@ -31,6 +30,7 @@ func warnMsg(str string) string {
 	return Yellow + str + Reset
 }
 
+// dimas - konversi dari angka ke emoji star
 func convertRating(rating *int) string {
 	switch *rating {
 	case 1:
@@ -48,7 +48,7 @@ func convertRating(rating *int) string {
 	}
 }
 
-func pause() {
+func pause() { // dimas - biar tidak spamming
 	fmt.Print(warnMsg("\nTekan Enter untuk kembali ke menu!"))
 	fmt.Scanln()
 	fmt.Scanln()
@@ -59,7 +59,7 @@ func menu() { // dimas - menambahkan fungsi menu
 	var suppliers []Supplier
 
 	for {
-		fmt.Print(Yellow + "~~ Menu BangunIn ~~" + Reset)
+		fmt.Print(Yellow + "~~ MENU ~~" + Reset)
 		fmt.Print(Green)
 
 		fmt.Printf(
@@ -72,16 +72,16 @@ func menu() { // dimas - menambahkan fungsi menu
 				"%s7.%s Urutkan Supplier (Rating Terendah)\n"+
 				"%s8.%s Tampilkan Statistik Aplikasi\n"+
 				"%s0.%s Keluar\n"+
-				"Masukkan pilihan menu (0-8): ",
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
-			Green, White,
+				"Pilihan menu (0-8) > ",
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
+			Green, Reset,
 		)
 		fmt.Print(Reset)
 		fmt.Scan(&input)
@@ -98,8 +98,8 @@ func menu() { // dimas - menambahkan fungsi menu
 				"\n%s1.%s Urut berdasarkan Nama\n"+
 					"%s2.%s Urut berdasarkan Lokasi\n"+
 					"Masukkan pilihan (1/2): ",
-				Green, White,
-				Green, White,
+				Green, Reset,
+				Green, Reset,
 			)
 			fmt.Scan(&inputSort)
 			if inputSort == 1 {
@@ -128,7 +128,7 @@ func menu() { // dimas - menambahkan fungsi menu
 			fmt.Println(errMsg("Berhasil keluar dari aplikasi!"))
 			break
 		} else {
-			fmt.Println(errMsg("Pilihan tidak valid, coba lagi!"))
+			fmt.Println(errMsg("Pilihan tidak valid!"))
 		}
 	}
 }
@@ -167,15 +167,15 @@ func add(list []Supplier) []Supplier {
 		fmt.Print("Detail Kontak: ")
 		fmt.Scan(&newData.detailKontak)
 
-		fmt.Print("Masukkan Riwayat/Deskripsi Pelayanan: ")
-		fmt.Scan(&newData.riwayatPelayanan)
+		fmt.Print("Kondisi Pelayanan: ")
+		fmt.Scan(&newData.kondisiPelayanan)
 
 		// slice arr
 		list = append(list, newData)
 		fmt.Printf("Data supplier ke-%d berhasil disimpan!\n", i)
 	}
 
-	fmt.Println(successMsg("\n Semua data baru berhasil tersimpan"))
+	fmt.Println(successMsg("\n Semua data baru berhasil tersimpan!!!"))
 	fmt.Println("-----------------------------------------------------")
 	return list
 }
@@ -196,7 +196,7 @@ func show(list []Supplier) {
 			fmt.Println(successMsg("Jenis Material    :"), data.jenisMaterial)
 			fmt.Println(successMsg("Rating Performa   :"), convertRating(&data.ratingPerforma))
 			fmt.Println(successMsg("Detail Kontak     :"), data.detailKontak)
-			fmt.Println(successMsg("Riwayat Pelayanan :"), data.riwayatPelayanan)
+			fmt.Println(successMsg("Kondisi Pelayanan :"), data.kondisiPelayanan)
 		}
 		fmt.Println("-----------------------------------")
 	}
@@ -208,38 +208,63 @@ func searchByName(list []Supplier) {
 	fmt.Println(warnMsg(">>> Cari Supplier <<<"))
 
 	var name string
-	fmt.Print("Masukkan Nama Perusahaan yang dicari: ")
+	fmt.Print("Nama Perusahaan yang dicari: ")
 	fmt.Scan(&name)
 
-	found := false
-	for _, data := range list {
-		if data.namaPerusahaan == name {
+	// menyalin arr utk insertion sort
+	temp := make([]Supplier, len(list))
+	copy(temp, list)
+
+	for i := 1; i < len(temp); i++ {
+		key := temp[i]
+		j := i - 1
+
+		for j >= 0 && temp[j].namaPerusahaan > key.namaPerusahaan {
+			temp[j+1] = temp[j]
+			j--
+		}
+
+		temp[j+1] = key
+	}
+
+	low := 0
+	high := len(temp) - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+
+		if temp[mid].namaPerusahaan == name {
+			data := temp[mid]
+
 			fmt.Println("-----------------------------------")
 			fmt.Println("Data Ditemukan!")
-			fmt.Println(warnMsg("Nama Perusahaan   :"), data.namaPerusahaan)
-			fmt.Println(successMsg("Lokasi            :"), data.lokasi)
-			fmt.Println(successMsg("Jenis Material    :"), data.jenisMaterial)
-			fmt.Println(successMsg("Rating Performa   :"), data.ratingPerforma)
-			fmt.Println(successMsg("Detail Kontak     :"), data.detailKontak)
-			fmt.Println(successMsg("Riwayat Pelayanan :"), data.riwayatPelayanan)
+			fmt.Println(successMsg("Nama Perusahaan :"), warnMsg(data.namaPerusahaan))
+			fmt.Println(successMsg("Lokasi :"), data.lokasi)
+			fmt.Println(successMsg("Jenis Material :"), data.jenisMaterial)
+			fmt.Println(successMsg("Rating Performa :"), data.ratingPerforma)
+			fmt.Println(successMsg("Detail Kontak :"), data.detailKontak)
+			fmt.Println(successMsg("Kondisi Pelayanan :"), data.kondisiPelayanan)
 			fmt.Println("-----------------------------------")
-			found = true
+			return
+
+		} else if temp[mid].namaPerusahaan < name {
+			low = mid + 1
+		} else {
+			high = mid - 1
 		}
 	}
 
-	if !found {
-		fmt.Println(errMsg("Maaf, supplier dengan nama tersebut tidak ditemukan."))
-	}
+	fmt.Println(errMsg("Supplier dengan NAMA itu tidak ada!"))
 	fmt.Println("-----------------------------------")
 }
 
 // SEQUENTAL SEARCH
-// wira - menambahkan function cari supplier berdasarkan lokasi (Sequential Search)
+// wira - menambahkan function cari supplier berdasarkan lokasi
 func searchByLocation(list []Supplier) {
 	fmt.Println(warnMsg(">>> Cari Supplier Berdasarkan Lokasi <<<"))
 
 	if len(list) == 0 {
-		fmt.Println(errMsg("Belum ada data supplier yang tersimpan!"))
+		fmt.Println(errMsg("Belum ada data supplier tersimpan!"))
 		return
 	}
 
@@ -257,11 +282,11 @@ func searchByLocation(list []Supplier) {
 
 			fmt.Println("-----------------------------------")
 			fmt.Println(successMsg("Nama Perusahaan   :"), data.namaPerusahaan)
-			fmt.Println(warnMsg("Lokasi            :"), data.lokasi)
+			fmt.Println(successMsg("Lokasi            :"), warnMsg(data.lokasi))
 			fmt.Println(successMsg("Jenis Material    :"), data.jenisMaterial)
 			fmt.Println(successMsg("Rating Performa   :"), convertRating(&data.ratingPerforma))
 			fmt.Println(successMsg("Detail Kontak     :"), data.detailKontak)
-			fmt.Println(successMsg("Riwayat Pelayanan :"), data.riwayatPelayanan)
+			fmt.Println(successMsg("Kondisi Pelayanan :"), data.kondisiPelayanan)
 			fmt.Println("-----------------------------------")
 
 			found = true
@@ -269,7 +294,7 @@ func searchByLocation(list []Supplier) {
 	}
 
 	if !found {
-		fmt.Println(errMsg("Supplier pada lokasi tersebut tidak ditemukan."))
+		fmt.Println(errMsg("Supplier pada LOKASI tersebut tidak ditemukan!"))
 	}
 
 	fmt.Println("-----------------------------------")
@@ -280,7 +305,7 @@ func editRating(list []Supplier) []Supplier {
 	fmt.Println(warnMsg(">>> Edit Rating Supplier <<<"))
 
 	var target string
-	fmt.Print("Masukkan Nama Perusahaan yang akan diubah: ")
+	fmt.Print("Nama Perusahaan yang akan diedit: ")
 	fmt.Scan(&target)
 
 	found := false
@@ -303,7 +328,7 @@ func editRating(list []Supplier) []Supplier {
 	}
 
 	if !found {
-		fmt.Println(errMsg("Maaf, supplier dengan nama tersebut tidak ditemukan."))
+		fmt.Println(errMsg("Supplier dengan NAMA itu tidak ditemukan!"))
 	}
 	fmt.Println("--------------------")
 	return list
@@ -314,7 +339,7 @@ func delete(list []Supplier) []Supplier {
 	fmt.Println(warnMsg(">>> Hapus Supplier <<<"))
 
 	var target string
-	fmt.Print("Masukkan Nama Perusahaan yang akan dihapus: ")
+	fmt.Print("Nama Perusahaan yang akan dihapus: ")
 	fmt.Scan(&target)
 
 	found := false
@@ -328,7 +353,7 @@ func delete(list []Supplier) []Supplier {
 	}
 
 	if !found {
-		fmt.Println(errMsg("Maaf, supplier dengan nama tersebut tidak ditemukan."))
+		fmt.Println(errMsg("Supplier dengan NAMA tersebut tidak ditemukan."))
 	}
 	return list
 }
@@ -336,13 +361,38 @@ func delete(list []Supplier) []Supplier {
 // SELECTION SORT
 // wira - menambahkan alur selection
 func sortRatingAsc(list []Supplier) []Supplier {
+	fmt.Println(warnMsg(">>> Urutkan Supplier (Rating Terendah) <<<"))
+	n := len(list)
+	if n == 0 {
+		fmt.Println(errMsg("Belum ada data supplier yang bisa diurutkan!"))
+		fmt.Println("--------------------")
+		return list
+	}
+	for i := 1; i < n; i++ {
+		key := list[i]
+		j := i - 1
+		for j >= 0 && list[j].ratingPerforma > key.ratingPerforma {
+			list[j+1] = list[j]
+			j--
+		}
+		list[j+1] = key
+	}
+	fmt.Println(successMsg("Data telah terurut berdasarkan rating terendah!"))
+	fmt.Println("--------------------")
+	show(list)
+	return list
+}
+
+// INSERTION SORT
+// dimas - menambahkan alur insertion
+func sortRatingDesc(list []Supplier) []Supplier {
 	fmt.Println(warnMsg(">>> Urutkan Supplier (Rating Tertinggi) <<<"))
 	n := len(list)
 	if n == 0 {
 		fmt.Println(errMsg("Belum ada data supplier yang bisa diurutkan!"))
+		fmt.Println("--------------------")
 		return list
 	}
-
 	for i := 0; i < n-1; i++ {
 		idxMax := i
 		for j := i + 1; j < n; j++ {
@@ -353,33 +403,7 @@ func sortRatingAsc(list []Supplier) []Supplier {
 		list[i], list[idxMax] = list[idxMax], list[i]
 	}
 
-	fmt.Println(successMsg("Data berhasil diurutkan berdasarkan rating tertinggi!"))
-	show(list)
-	return list
-}
-
-// INSERTION SORT
-// dimas - menambahkan alur insertion
-func sortRatingDesc(list []Supplier) []Supplier {
-	fmt.Println(warnMsg(">>> Urutkan Supplier (Rating Terendah) <<<"))
-	n := len(list)
-	if n == 0 {
-		fmt.Println(errMsg("Belum ada data supplier yang bisa diurutkan!"))
-		fmt.Println("--------------------")
-		return list
-	}
-
-	for i := 1; i < n; i++ {
-		key := list[i]
-		j := i - 1
-		for j >= 0 && list[j].ratingPerforma > key.ratingPerforma {
-			list[j+1] = list[j]
-			j = j - 1
-		}
-		list[j+1] = key
-	}
-
-	fmt.Println(successMsg("Data berhasil diurutkan berdasarkan rating terendah"))
+	fmt.Println(successMsg("Data telah terurut berdasarkan rating tertinggi!"))
 	fmt.Println("--------------------")
 	show(list)
 	return list
@@ -387,10 +411,10 @@ func sortRatingDesc(list []Supplier) []Supplier {
 
 // wira - menambahkan untuk menampilkan statistik total dan rata rata
 func showStats(list []Supplier) {
-	fmt.Println(warnMsg(">>> Statistik Aplikasi <<<"))
+	fmt.Println(warnMsg(">>> Statistik <<<"))
 	n := len(list)
 	if n == 0 {
-		fmt.Println(errMsg("Belum cukup data supplier untuk statistik!"))
+		fmt.Println(errMsg("Belum cukup data untuk statistik!"))
 		fmt.Println("--------------------")
 		return
 	}
@@ -399,10 +423,11 @@ func showStats(list []Supplier) {
 	for _, data := range list {
 		totalRating += data.ratingPerforma
 	}
-	avgRating := totalRating / n
+	avgRating := float64(totalRating) / float64(n)
+	persen := (avgRating / 5.0) * 100
 
-	fmt.Println("--- Jumlah Supplier Per Wilayah ---")
 	var wilayahDihitung []string
+	i := 1
 
 	for _, dataOut := range list {
 		isCount := false
@@ -415,28 +440,28 @@ func showStats(list []Supplier) {
 
 		if !isCount {
 			hitungWilayah := 0
-			for _, dataDalam := range list {
-				if dataDalam.lokasi == dataOut.lokasi {
+			for _, dataIn := range list {
+				if dataIn.lokasi == dataOut.lokasi {
 					hitungWilayah++
 				}
 			}
-			fmt.Printf("- Wilayah %s: %d Supplier\n", dataOut.lokasi, hitungWilayah)
+			fmt.Printf("%d Wilayah %s: %d Supplier\n", i, dataOut.lokasi, hitungWilayah)
+			i++
 			wilayahDihitung = append(wilayahDihitung, dataOut.lokasi)
 		}
 	}
-
-	fmt.Println("-----------------------------------")
-	fmt.Printf("Rata-rata Skor Kepuasan Mitra: %.2f\n", avgRating)
-	fmt.Println("-----------------------------------")
+	fmt.Println()
+	fmt.Printf(successMsg("Rata-rata Skor Kepuasan Mitra: %.2f\n"), avgRating)
+	fmt.Printf(successMsg("Tingkat Kepuasan Mitra: %.2f%%\n"), persen)
 }
 
 func main() {
 	fmt.Print(successMsg(`
-██████╗  █████╗ ███╗   ██╗ ██████╗ ██╗   ██╗███╗   ██╗██╗███╗   ██╗
+▛█████╗  █████╗ ███╗   ██╗ ███▓▓█╗ ██╗   ██╗███╗   ██╗██╗░░█╗   ██╗
 ██╔══██╗██╔══██╗████╗  ██║██╔════╝ ██║   ██║████╗  ██║██║████╗  ██║
-██████╔╝███████║██╔██╗ ██║██║  ███╗██║   ██║██╔██╗ ██║██║██╔██╗ ██║
-██╔══██╗██╔══██║██║╚██╗██║██║   ██║██║   ██║██║╚██╗██║██║██║╚██╗██║
-██████╔╝██║  ██║██║ ╚████║╚██████╔╝╚██████╔╝██║ ╚████║██║██║ ╚████║
+██████╔╝██▓░▓██║██╔█▒╗ ██║██║  ███╗██║   ░░║█▒╔██╗ ██║██║██╔██╗ ██║
+█▒╔══██╗██╔══██║██║╚██╗██║██║   ██║██║   ██║██║╚██╗██║██║██║╚██╗██║
+███▒██╔╝██║  ██║▓▓║ ╚████║╚██▒███╔╝╚░░████╔╝██║ ╚█▓▓█║▓▓║██║ ╚███▟║
 ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝
 	`))
 	fmt.Println(Blue + "made with ❤️  by @dimasramadhans && @jalawirabahari // IF-05-02" + Reset)
