@@ -20,6 +20,8 @@ const (
 	Blue   = "\033[34m"
 )
 
+// fmt.Print("\033[31mABEL")
+
 func errMsg(str string) string {
 	return Red + str + Reset
 }
@@ -358,7 +360,7 @@ func delete(list []Supplier) []Supplier {
 	return list
 }
 
-// SELECTION SORT
+// INSERTION SORT
 // wira - menambahkan alur selection
 func sortRatingAsc(list []Supplier) []Supplier {
 	fmt.Println(warnMsg(">>> Urutkan Supplier (Rating Terendah) <<<"))
@@ -383,7 +385,7 @@ func sortRatingAsc(list []Supplier) []Supplier {
 	return list
 }
 
-// INSERTION SORT
+// SELECTION SORT
 // dimas - menambahkan alur insertion
 func sortRatingDesc(list []Supplier) []Supplier {
 	fmt.Println(warnMsg(">>> Urutkan Supplier (Rating Tertinggi) <<<"))
