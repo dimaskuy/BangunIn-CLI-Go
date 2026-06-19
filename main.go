@@ -163,7 +163,7 @@ func add(list []Supplier) []Supplier {
 			if newData.ratingPerforma >= 1 && newData.ratingPerforma <= 5 {
 				break
 			}
-			fmt.Println(errMsg("Rating harus dalam rentang 1 hingga 10, coba lagi."))
+			fmt.Println(errMsg("Rating harus dalam rentang 1 hingga 5, coba lagi."))
 		}
 
 		fmt.Print("Detail Kontak: ")
